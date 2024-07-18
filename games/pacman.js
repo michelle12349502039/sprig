@@ -1,25 +1,12 @@
-/*
-First time? Check out the tutorial game:
-https://sprig.hackclub.com/gallery/getting_started
-
-@title: Simple Pac-Man
-@author: Your Name
-@tags: []
-@addedOn: 2024-07-11
-*/
-
-const player = "p"
-const walltop = "t"
-const wallside = "s"
-const dot = "d"
-const ghostA = "A"
-const ghostB = "B"
-const ghostC = "C"
-const biggerdot = "L"
-const fruit = "f"
+const player = "p";
+const walltop = "t";
+const wallside = "s";
+const dot = "d";
+const ghost = "A";
+const empty = "e";
 
 setLegend(
-  [ player, bitmap`
+  [player, bitmap`
 0000000000000000
 0000000000000000
 0000066666600000
@@ -35,8 +22,8 @@ setLegend(
 0006666666666000
 0000066666600000
 0000000000000000
-0000000000000000` ],
-  [ walltop, bitmap`
+0000000000000000`],
+  [walltop, bitmap`
 0000000000000000
 0000000000000000
 0000000000000000
@@ -52,8 +39,8 @@ setLegend(
 0000000000000000
 0000000000000000
 0000000000000000
-0000000000000000` ],
-  [ wallside, bitmap`
+0000000000000000`],
+  [wallside, bitmap`
 0000500000500000
 0000500000500000
 0000500000500000
@@ -69,25 +56,25 @@ setLegend(
 0000500000500000
 0000500000500000
 0000500000500000
-0000500000500000` ],
-  [ dot, bitmap`
-0000000000000000
-0000000000000000
-0000000000000000
-0000000000000000
-0000000000000000
-0000000000000000
-0000006660000000
-0000006660000000
-0000006660000000
-0000000000000000
-0000000000000000
-0000000000000000
-0000000000000000
-0000000000000000
-0000000000000000
-0000000000000000` ],
-  [ ghostA, bitmap`
+0000500000500000`],
+  [dot, bitmap`
+................
+................
+................
+................
+................
+................
+......666.......
+......666.......
+......666.......
+................
+................
+................
+................
+................
+................
+................`],
+  [ghost, bitmap`
 0000000000000000
 0000003333300000
 0000333333330000
@@ -103,158 +90,127 @@ setLegend(
 0033333333333300
 0033033330003300
 0030000330000300
-0000000000000000` ],
-  [ ghostB, bitmap`
-0000000000000000
-0000007777700000
-0000777777770000
-0007777777777000
-0007777777777700
-0075522755227700
-0075522755227700
-0072227722277700
-0077777777777700
-0077777777777700
-0077777777777700
-0077777777777700
-0077777777777700
-0077077770007700
-0070000770000700
-0000000000000000` ],
-  [ ghostC, bitmap`
-0000000000000000
-0000008888800000
-0000888888880000
-0008888888888000
-0008888888888800
-0085522855228800
-0085522855228800
-0082228822288800
-0088888888888800
-0088888888888800
-0088888888888800
-0088888888888800
-0088888888888800
-0088088880008800
-0080000880000800
-0000000000000000` ],
-  [ biggerdot, bitmap`
+0000000000000000`],
+  [empty, bitmap`
 0000000000000000
 0000000000000000
 0000000000000000
 0000000000000000
-0000666666660000
-0000666666660000
-0000666666660000
-0000666666660000
-0000666666660000
-0000666666660000
-0000666666660000
-0000666666660000
 0000000000000000
 0000000000000000
 0000000000000000
-0000000000000000` ],
-  [ fruit, bitmap`
-0000000000000000
-00000000D0000000
-00000000D0000000
-0000000DDD000000
-000000DDDD000000
-00000DD0DD000000
-00000D000DD00000
-0000DD000D330000
-0003333003333000
-0033333033333300
-0033333033333300
-0033333033333300
-0003333003333000
 0000000000000000
 0000000000000000
-0000000000000000` ]
-)
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000`]
+);
 
-setSolids([player, walltop,wallside])
+setSolids([player, walltop, wallside, ghost]);
 
-let level = 0
+let level = 0;
 const levels = [
   map`
 sttttttttttttts
-spdddddddddddAs
-sddddtttttdddds
-sddtddddddtddds
-sddLdtttttdddds
-sddtddddddtddds
-sddddddddLddtts
+speeeeeeeeeeees
+seeeettttteeees
+seeeeeeeeeteees
+seeeettttteeees
+seetteeeeeeeees
+seeeeeeeeeeeees
 sttttttttttttts`
-]
+];
 
-setMap(levels[level])
+setMap(levels[level]);
 
+// Add dots to every tile that's not a wall, ghost, or player
+for (let y = 0; y < height(); y++) {
+  for (let x = 0; x < width(); x++) {
+    const tileContent = getTile(x, y);
+    if (!tileContent.some(tile => tile === walltop || tile === wallside || tile === player || tile === ghost)) {
+      addSprite(x, y, dot);
+    }
+  }
+}
 
 setPushables({
-  [ player ]: []
-})
+  [player]: []
+});
 
 onInput("w", () => {
-  getFirst(player).y -= 1
-})
+  const p = getFirst(player);
+  p.y -= 1;
+  checkCollision();
+});
 
 onInput("a", () => {
-  getFirst(player).x -= 1
-})
+  const p = getFirst(player);
+  p.x -= 1;
+  checkCollision();
+});
 
 onInput("s", () => {
-  getFirst(player).y += 1
-})
+  const p = getFirst(player);
+  p.y += 1;
+  checkCollision();
+});
 
 onInput("d", () => {
-  getFirst(player).x += 1
-})
+  const p = getFirst(player);
+  p.x += 1;
+  checkCollision();
+});
 
-let score = 0
-let lives = 3
+let score = 0;
+let lives = 3;
 
 function checkCollision() {
-  const playerPos = getFirst(player)
-  const tileContent = getTile(playerPos.x, playerPos.y)
-  if (tileContent.includes(dot)) {
-    score++
-    clearTile(playerPos.x, playerPos.y)
+  const playerPos = getFirst(player);
+  const tileContent = getTile(playerPos.x, playerPos.y);
+
+  if (tileContent.some(tile => tile === dot)) {
+    score += 1;
+    clearTile(playerPos.x, playerPos.y);
+    setTitle("");
   }
-  if (tileContent.includes(biggerdot)) {
-    score += 10
-    clearTile(playerPos.x, playerPos.y)
-  }
-  if (tileContent.includes(fruit)) {
-    score += 50
-    clearTile(playerPos.x, playerPos.y)
-  }
-  if (tileContent.includes(ghostA) || tileContent.includes(ghostB) || tileContent.includes(ghostC)) {
-    lives--
+  if (tileContent.some(tile => tile === ghost)) {
+    lives--;
     if (lives <= 0) {
-      addText("Game Over!", { y: 4, color: color`3` })
-      score = 0
-      lives = 3
-      setMap(levels[level])
+      addText("Game Over!", { y: 4, color: color`3` });
+      score = 0;
+      lives = 3;
+      setMap(levels[level]);
     }
   }
 }
 
 function moveGhosts() {
-  const ghosts = getAll(ghostA).concat(getAll(ghostB), getAll(ghostC))
+  const ghosts = getAll(ghost);
   ghosts.forEach(g => {
-    const direction = Math.floor(Math.random() * 4)
+    let direction = Math.floor(Math.random() * 4);
+    let newX = g.x;
+    let newY = g.y;
+
     switch (direction) {
-      case 0: g.y -= 1; break;
-      case 1: g.x += 1; break;
-      case 2: g.y += 1; break;
-      case 3: g.x -= 1; break;
+      case 0: newY -= 1; break;  // Move up
+      case 1: newX += 1; break;  // Move right
+      case 2: newY += 1; break;  // Move down
+      case 3: newX -= 1; break;  // Move left
     }
-  })
+
+    // Check if the new position is a wall or out of bounds
+    if (!getTile(newX, newY).some(tile => tile === walltop || tile === wallside)) {
+      g.x = newX;
+      g.y = newY;
+    }
+  });
 }
 
 afterInput(() => {
-  checkCollision()
-  moveGhosts()
-})
+  moveGhosts();
+  addSprite(0, 0, empty);
+});
